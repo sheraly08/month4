@@ -10,3 +10,11 @@ class Article(models.Model):
 
     def __str__(self) -> str:
         return self.title
+
+class Catalog(models.Model):
+    name = models.TextField()
+
+
+    def __str__(self) -> str:
+        return self.name
+    
