@@ -1,9 +1,11 @@
 from django.shortcuts import render
 from django.http.response import HttpResponse   
+from articles.models import Article
 # Create your views here.
 
 def hello_world(request):
     return HttpResponse("<h1>Hello world</h1>")
+
 
 
 def hello_name(request, name):
@@ -11,6 +13,10 @@ def hello_name(request, name):
 
 
 
-#HOMEWORK
-def info(request):
-    return HttpResponse(f"Ваш браузер: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36.")
+def articles_list(request):
+    articles = Article.objects.all()
+
+    
+
+
+    return HttpResponse(articles)
