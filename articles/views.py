@@ -1,22 +1,13 @@
-from django.shortcuts import render
-from django.http.response import HttpResponse   
+from django.http.request import HttpRequest
+from django.http.response import HttpResponse
+
 from articles.models import Article
-# Create your views here.
-
-def hello_world(request):
-    return HttpResponse("<h1>Hello world</h1>")
 
 
-
-def hello_name(request, name):
-    return HttpResponse(f"Hello <h1>{name}</h1>")
-
-
-
-def articles_list(request):
-    articles = Article.objects.all()
-
-    
-
-
-    return HttpResponse(articles)
+def articles_list(request: HttpRequest) -> HttpResponse:
+    count: int = Article.objects.all().count()
+    text = "<h1>"
+    for i in range(1, count + 1):
+        article = Article.objects.filter(id=i).first()
+        text += f"{article.title} </h1><br><h1>"
+    return HttpResponse(text)
