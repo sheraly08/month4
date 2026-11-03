@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{# Во вкладке браузера — заголовок статьи #}
+{% block title %}{{ article.title }} — Blog{% endblock %}
+
+{% block content %}
+
+    {# Ссылка назад на список статей #}
+    <a href="{% url 'article_list' %}" class="text-decoration-none small">← Все статьи</a>
+
+    <article class="card shadow-sm mt-3">
+        <div class="card-body">
+
+            <h1 class="h3 card-title">{{ article.title }}</h1>
+
+            <p class="text-muted small mb-3">
+                {{ article.created_at|date:"d.m.Y H:i" }}
+
+                {% if article.category %}
+                    <span class="badge bg-primary ms-2">{{ article.category.name }}</span>
+                {% endif %}
+
+                {% if article.rate >= 4 %}
+                    <span class="badge bg-success ms-1">★ {{ article.rate }}/5</span>
+                {% else %}
+                    <span class="badge bg-secondary ms-1">★ {{ article.rate }}/5</span>
+                {% endif %}
+            </p>
+
+            {# Полный текст. |linebreaks превращает переносы строк в абзацы <p> #}
+            <div class="card-text">{{ article.text|linebreaks }}</div>
+
+        </div>
+    </article>
+
+{% endblock %}
