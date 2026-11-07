@@ -1,36 +1,156 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
-{# Во вкладке браузера — заголовок статьи #}
 {% block title %}{{ article.title }} — Blog{% endblock %}
+
+{% block extra_css %}
+<style>
+    .article-cover {
+        aspect-ratio: 21 / 9;
+        object-fit: cover;
+        width: 100%;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
 
-    {# Ссылка назад на список статей #}
-    <a href="{% url 'article_list' %}" class="text-decoration-none small">← Все статьи</a>
+<!-- Хлебные крошки -->
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="#">Главная</a></li>
+        <li class="breadcrumb-item"><a href="#">Статьи</a></li>
+        <li class="breadcrumb-item active text-truncate" aria-current="page">{{ article.title }}</li>
+    </ol>
+</nav>
 
-    <article class="card shadow-sm mt-3">
-        <div class="card-body">
+<article class="card shadow-sm">
 
-            <h1 class="h3 card-title">{{ article.title }}</h1>
+    <!-- Обложка: пока заглушка. Когда появится поле image — раскомментируйте блок ниже -->
+    {% if article.image %}
+        <img src="{{ article.image.url }}" class="card-img-top article-cover" alt="{{ article.title }}">
+    {% else %}
+        <svg class="card-img-top article-cover bg-body-secondary" height="300"
+             xmlns="http://www.w3.org/2000/svg" role="img"
+             aria-label="Изображение отсутствует" preserveAspectRatio="xMidYMid slice">
+            <title>Изображение отсутствует</title>
+            <rect width="100%" height="100%" fill="#dee2e6"></rect>
+            <text x="50%" y="50%" fill="#6c757d" dominant-baseline="middle"
+                  text-anchor="middle" font-size="20">Нет изображения</text>
+        </svg>
+    {% endif %}
 
-            <p class="text-muted small mb-3">
-                {{ article.created_at|date:"d.m.Y H:i" }}
+    <div class="card-body p-4">
 
-                {% if article.category %}
-                    <span class="badge bg-primary ms-2">{{ article.category.name }}</span>
-                {% endif %}
-
-                {% if article.rate >= 4 %}
-                    <span class="badge bg-success ms-1">★ {{ article.rate }}/5</span>
-                {% else %}
-                    <span class="badge bg-secondary ms-1">★ {{ article.rate }}/5</span>
-                {% endif %}
-            </p>
-
-            {# Полный текст. |linebreaks превращает переносы строк в абзацы <p> #}
-            <div class="card-text">{{ article.text|linebreaks }}</div>
-
+        <!-- Заголовок, дата и рейтинг -->
+        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-start gap-2 mb-3">
+            <div>
+                <h1 class="h2 mb-1">{{ article.title }}</h1>
+                <time class="text-muted small" datetime="{{ article.created_at|date:'c' }}">
+                    {{ article.created_at|date:"d.m.Y, H:i" }}
+                </time>
+            </div>
+            <span class="badge rounded-pill fs-6 align-self-start
+                {% if article.rate >= 4 %}text-bg-success
+                {% elif article.rate >= 2 %}text-bg-warning
+                {% else %}text-bg-secondary{% endif %}">
+                ★ {{ article.rate }}
+            </span>
         </div>
-    </article>
+
+        <hr>
+
+        <!-- Текст статьи -->
+        <div class="article-body lh-lg">
+            {% if article.text %}
+                {{ article.text|linebreaks }}
+            {% else %}
+                <p class="text-muted fst-italic mb-0">Текст статьи пока не добавлен.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Действия -->
+    <div class="card-footer bg-transparent d-flex flex-wrap justify-content-between gap-2 p-3">
+        <a href="{% url 'article_list' %}" class="btn btn-outline-secondary">← Назад к списку</a>
+
+        {% if user.is_authenticated %}
+        <div class="d-flex gap-2">
+            <a href="#" class="btn btn-outline-primary">Редактировать</a>
+            <button type="button" class="btn btn-outline-danger"
+                    data-bs-toggle="modal" data-bs-target="#deleteModal">
+                Удалить
+            </button>
+        </div>
+        {% endif %}
+    </div>
+</article>
+
+<!-- Комментарии -->
+<section class="card shadow-sm mt-4">
+    <div class="card-header fw-semibold">Комментарии ({{ comments|length }})</div>
+
+    <div class="card-body p-4">
+
+        <!-- Форма добавления комментария -->
+        <form method="post" action="{% url 'article_comment' article.id %}" class="mb-4">
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <label for="author_name" class="form-label">Имя</label>
+                <input type="text" name="author_name" id="author_name" maxlength="50"
+                       class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="comment_text" class="form-label">Комментарий</label>
+                <textarea name="text" id="comment_text" rows="3"
+                          class="form-control" required></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Отправить</button>
+        </form>
+
+        <hr>
+
+        <!-- Список комментариев -->
+        {% for comment in comments %}
+        <div class="{% if not forloop.last %}border-bottom pb-3 mb-3{% endif %}">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <span class="fw-semibold">{{ comment.author_name }}</span>
+                <time class="text-muted small" datetime="{{ comment.created_at|date:'c' }}">
+                    {{ comment.created_at|date:"d.m.Y, H:i" }}
+                </time>
+            </div>
+            <p class="mb-0">{{ comment.text|linebreaksbr }}</p>
+        </div>
+        {% empty %}
+        <p class="text-muted fst-italic mb-0">Комментариев пока нет. Будьте первым!</p>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Модалка подтверждения удаления -->
+{% if user.is_authenticated %}
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title fs-5" id="deleteModalLabel">Удалить статью?</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body">
+                Статья «{{ article.title }}» будет удалена без возможности восстановления.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <form method="post" action="#">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Удалить</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
 
 {% endblock %}
