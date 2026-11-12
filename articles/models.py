@@ -20,6 +20,9 @@ class Article(models.Model):
 class Category(models.Model):
     name = models.CharField()
 
+    def __str__(self):
+        return self.name
+
 
 
 class Comment(models.Model):

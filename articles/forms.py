@@ -13,8 +13,59 @@ class ArticleForm(forms.ModelForm):
         model = Article
         fields = ("title", "text", "rate", "image", "category")
 
+    def validation_title(self, title):
+        if len(title) > 10:
+            raise forms.ValidationError("validation error from func")
+
+    def clean_title(self):
+        title = self.cleaned_data["title"]
+
+        if title == "NOT VALID":
+            raise forms.ValidationError("TUT")
+
+        self.validation_title(title)
+
+        return title
+
 
 class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
         fields = ("author_name", "text")
+
+    BANNED_WORDS = [
+    # оскорбления
+    "дурак", "идиот", "тупой", "придурок", "дебил", "кретин",
+    "тварь", "урод", "ничтожество", "мразь", "быдло", "лох",
+    # спам и реклама
+    "казино", "ставки", "букмекер", "займ", "кредит",
+    "быстрый заработок", "крипта", "инвестиции", "раскрутка",
+    "накрутка", "подписывайся", "переходи по ссылке",
+    "пиши в телеграм", "скидка", "бесплатно", "выигрыш",
+    # ссылки
+    "http", "https", "www", ".ru", ".com", "t.me",]
+
+
+
+    def clean_text(self):
+
+
+        text = self.cleaned_data["text"]
+
+        if len(text) < 5:
+            raise forms.ValidationError("Текст комментария должен содержать минимум 5 символов.")
+
+        text_lower = text.lower()
+        for word in self.BANNED_WORDS:
+            if word in text_lower:
+                raise forms.ValidationError(f"Комментарий содержит запрещенное слово: «{word}».")
+        
+        return text
+
+
+    def clean_author_name(self):
+        author_name = self.cleaned_data['author_name']
+        if author_name and author_name.isdigit():
+            raise forms.ValidationError("Имя автора не может состоять только из цифр!")
+        
+        return author_name

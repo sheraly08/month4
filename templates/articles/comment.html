@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Новый комментарий{% endblock %}
+
+{% block content %}
+    <h1>Новый комментарий</h1>
+    <p class="meta">К статье «{{ article.title }}»</p>
+
+    <form class="card" method="post" action="{% url 'article_comment' id=article.id %}">
+        {% csrf_token %}
+
+        {{ form.non_field_errors }}
+
+        {% for field in form %}
+            <div class="field">
+                {{ field.label_tag }}
+                {{ field }}
+                {{ field.errors }}
+            </div>
+        {% endfor %}
+
+        <div class="actions">
+            <button class="btn" type="submit">Отправить</button>
+            <a class="btn btn-light" href="{% url 'article_detail' id=article.id %}">Отмена</a>
+        </div>
+    </form>
+{% endblock %}
