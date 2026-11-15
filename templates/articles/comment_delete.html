@@ -6,7 +6,7 @@
     <h1>Удалить комментарий?</h1>
 
     <div class="card">
-        <p class="meta">{{ comment.author_name }} · {{ comment.created_at|date:"d.m.Y H:i" }}</p>
+        <p class="meta">{{ comment.user.username }} ·{{ comment.created_at|date:"d.m.Y H:i" }}</p>
         <p>{{ comment.text|linebreaksbr }}</p>
 
         <form method="post">

@@ -1,14 +1,16 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 
 # Create your models here.
 class Article(models.Model):
     title = models.CharField(max_length=255)
     text = models.TextField()
-    image = models.ImageField(null=True, upload_to="articles/")
+    image = models.ImageField(null=True, blank=True, upload_to="articles/")
     created_at = models.DateTimeField(auto_now_add=True)
     rate = models.IntegerField()
-    category = models.ForeignKey("Category", on_delete=models.SET_NULL, null=True)
+    category = models.ForeignKey("Category", on_delete=models.SET_NULL, null=True, blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self) -> str:
         return self.title
@@ -27,12 +29,12 @@ class Category(models.Model):
 
 class Comment(models.Model):
     article = models.ForeignKey("Article", on_delete=models.CASCADE, null=True)
-    author_name = models.CharField(max_length=50)
+    user = models.ForeignKey(User, on_delete=models.CASCADE )
     text = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self) -> str:
-        return self.author_name
+        return f"{self.user.username}: {self.text}"
 
     class Meta:
         ordering = ("-created_at",)

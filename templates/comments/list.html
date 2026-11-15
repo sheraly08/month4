@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Мои комментарии{% endblock %}
+
+{% block content %}
+    <h1>Мои комментарии</h1>
+
+    {% for comment in comments %}
+        <div class="card">
+            <div class="meta">
+                {% if comment.article %}
+                    К статье
+                    <a href="{% url 'article_detail' id=comment.article_id %}">«{{ comment.article.title }}»</a>
+                {% else %}
+                    Статья удалена
+                {% endif %}
+                · {{ comment.created_at|date:"d.m.Y H:i" }}
+            </div>
+
+            <p>{{ comment.text|linebreaksbr }}</p>
+
+            {% if comment.article %}
+                <div class="actions">
+                    <a class="btn btn-light" href="{% url 'comment_edit' id=comment.article_id id_comment=comment.id %}">Редактировать</a>
+                    <a class="btn btn-danger" href="{% url 'comment_delete' id=comment.article_id id_comment=comment.id %}">Удалить</a>
+                </div>
+            {% endif %}
+        </div>
+    {% empty %}
+        <p class="empty">Вы ещё не оставили ни одного комментария. <a href="{% url 'article_list' %}">К статьям</a>.</p>
+    {% endfor %}
+{% endblock %}

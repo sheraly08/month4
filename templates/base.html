@@ -68,6 +68,7 @@
         .field label { display: block; margin-bottom: 4px; font-weight: 600; }
         .field input[type="text"],
         .field input[type="number"],
+        .field input[type="password"],
         .field textarea,
         .field select {
             width: 100%;
@@ -86,18 +87,64 @@
         .comment:first-child { border-top: none; }
         .comment strong { display: block; }
         .empty { color: var(--muted); }
+        .nav-links { display: flex; align-items: center; gap: 14px; }
+        .nav-links form { margin: 0; }
+        .nav-user { color: var(--muted); font-size: 0.95rem; }
+        .link-btn {
+            padding: 0;
+            border: none;
+            background: none;
+            color: var(--accent);
+            font: inherit;
+            cursor: pointer;
+        }
+        .link-btn:hover { text-decoration: underline; }
+        .messages { list-style: none; margin: 0 0 20px; padding: 0; }
+        .messages li {
+            padding: 10px 14px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+        }
+        .messages .error { border-color: var(--danger); color: var(--danger); }
+        .messages .success { border-color: #2e9d5b; color: #2e9d5b; }
+        .comment .actions { margin-top: 8px; }
     </style>
 </head>
 <body>
     <header>
         <div class="container nav">
             <a class="logo" href="{% url 'article_list' %}">Статьи</a>
-            <a class="btn" href="{% url 'article_create' %}">Новая статья</a>
+
+            <nav class="nav-links">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'comments_list' %}">Мои комментарии</a>
+                    <span class="nav-user">{{ user.username }}</span>
+                    <form method="post" action="{% url 'logout' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{% url 'article_list' %}">
+                        <button class="link-btn" type="submit">Выйти</button>
+                    </form>
+                    <a class="btn" href="{% url 'article_create' %}">Новая статья</a>
+                {% else %}
+                    <a href="{% url 'login' %}">Войти</a>
+                    <a class="btn" href="{% url 'signup' %}">Регистрация</a>
+                {% endif %}
+            </nav>
         </div>
     </header>
 
     <main>
         <div class="container">
+            {% if messages %}
+                <ul class="messages">
+                    {% for message in messages %}
+                        <li class="{{ message.tags }}">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
             {% block content %}{% endblock %}
         </div>
     </main>

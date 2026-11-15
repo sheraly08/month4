@@ -4,7 +4,7 @@
 
 {% block content %}
     <h1>Новый комментарий</h1>
-    <p class="meta">К статье «{{ article.title }}»</p>
+    <p class="meta">К статье «{{ article.title }}» · от имени {{ user.username }}</p>
 
     <form class="card" method="post" action="{% url 'article_comment' id=article.id %}">
         {% csrf_token %}

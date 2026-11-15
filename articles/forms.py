@@ -31,7 +31,7 @@ class ArticleForm(forms.ModelForm):
 class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
-        fields = ("author_name", "text")
+        fields = ("text",)
 
     BANNED_WORDS = [
     # оскорбления
@@ -63,9 +63,4 @@ class CommentForm(forms.ModelForm):
         return text
 
 
-    def clean_author_name(self):
-        author_name = self.cleaned_data['author_name']
-        if author_name and author_name.isdigit():
-            raise forms.ValidationError("Имя автора не может состоять только из цифр!")
-        
-        return author_name
+    

@@ -17,10 +17,11 @@ Including another URLconf
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 
 from articles.views import (article_create, article_detail, articles_list, article_comment,
-                            article_delete, article_edit, comment_edit, delete_comment
+                            article_delete, article_edit, comment_edit, delete_comment,
+                            my_list, signup
                             )
 
 urlpatterns = [
@@ -33,9 +34,13 @@ urlpatterns = [
     path("articles/<int:id>/comment", article_comment, name="article_comment"),
     path('articles/<int:id>/comment/<int:id_comment>/edit/', comment_edit, name="comment_edit"),
     path("articles/<int:id>/comment/<int:id_comment>/delete/", delete_comment, name="comment_delete" ),
+    path("my-comments/", my_list, name="comments_list"),
+    path("accounts/signup/", signup, name="signup"),
+     path("accounts/", include("django.contrib.auth.urls")),
+
 ]
 
 
 if settings.DEBUG:
-    urlpatterns += static(settings.STATIC_URL, dcoument_root=settings.STATIC_ROOT)
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
