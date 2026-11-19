@@ -19,23 +19,23 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 
-from articles.views import (article_create, article_detail, articles_list, article_comment,
-                            article_delete, article_edit, comment_edit, delete_comment,
-                            my_list, signup
+from articles.views import (ArticleCreateView, ArticleDetailView, ArticleListView, CommentCreateView,
+                            ArticleDeleteView, ArticleEditView, CommentEditView, CommentDeleteView,
+                            MyCommentListView, SignUpView
                             )
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("", articles_list, name="article_list"),
-    path("<int:id>/detail", article_detail, name="article_detail"),
-    path("create/", article_create, name="article_create"),
-    path("<int:id>/edit", article_edit, name="article_edit"),
-    path("<int:id>/delete", article_delete, name="article_delete"),
-    path("articles/<int:id>/comment", article_comment, name="article_comment"),
-    path('articles/<int:id>/comment/<int:id_comment>/edit/', comment_edit, name="comment_edit"),
-    path("articles/<int:id>/comment/<int:id_comment>/delete/", delete_comment, name="comment_delete" ),
-    path("my-comments/", my_list, name="comments_list"),
-    path("accounts/signup/", signup, name="signup"),
+    path("", ArticleListView.as_view(), name="article_list"),
+    path("<int:id>/detail", ArticleDetailView.as_view(), name="article_detail"),
+    path("create/", ArticleCreateView.as_view(), name="article_create"),
+    path("<int:id>/edit", ArticleEditView.as_view(), name="article_edit"),
+    path("<int:id>/delete", ArticleDeleteView.as_view(), name="article_delete"),
+    path("articles/<int:id>/comment", CommentCreateView.as_view(), name="article_comment"),
+    path('articles/<int:id>/comment/<int:id_comment>/edit/', CommentEditView.as_view(), name="comment_edit"),
+    path("articles/<int:id>/comment/<int:id_comment>/delete/", CommentDeleteView.as_view(), name="comment_delete" ),
+    path("my-comments/", MyCommentListView.as_view(), name="comments_list"),
+    path("accounts/signup/", SignUpView.as_view(), name="signup"),
      path("accounts/", include("django.contrib.auth.urls")),
 
 ]
